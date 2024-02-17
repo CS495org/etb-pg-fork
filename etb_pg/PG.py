@@ -3,7 +3,7 @@ from typing import Any, Callable
 
 class PGDB:
     '''class for interacting with Postgres Databases\n
-    conn_dict: {
+    conn_dict: dict = {
     \t "user" : "",
     \t "password" : "",
     \t "host" : "",
@@ -11,7 +11,8 @@ class PGDB:
     \t "dbname" : ""
     }
     read_only (optional, default=True): Set the connection to be read only\n
-    sql_dir (optional): Specify the absolute path of the directory where queries are stored'''
+    sql_dir (optional): Specify the absolute path of the directory where queries are stored\n
+    README at https://github.com/HFxLhT8JqeU5BnUG/etb-pg'''
 
     def __init__(self, conn_dict: dict[str, str],
                  read_only: bool = True, sql_dir: str = ""):
@@ -89,16 +90,29 @@ class PGDB:
         return wrapper
 
 
-    def get_columns(self, table_name: str, schema: str = None) -> dict[str, Any]:
+    def get_columns(self, table_name: str, schema: str = "public") -> dict[str, Any]:
         '''Pass the name of the table, and (optional) the schema\n
         Returns names and types of rows as dictionary'''
-        if schema:
-            location = schema + "." + table_name
-        else:
-            location = table_name
+        location = schema + "." + table_name
 
         query = f"select * from {location} limit 1;"
 
         row = self._execute_query(query)[0]
 
         return {key: type(value) for key, value in row.items()}
+
+
+    def get_rows(self, table_name: str, schema: str = "public", cols: list[str] = None):
+        '''Select specified columns from a table\n
+        schema (optional, defaults to public)\n
+        cols (optional, defaults to "*")'''
+        if not cols:
+            select_cols = '*'
+        else:
+            select_cols = ', '.join(cols)
+
+        location = schema + "." + table_name
+
+        query = f"select {select_cols} from {location};"
+
+        return self._execute_query(query)
