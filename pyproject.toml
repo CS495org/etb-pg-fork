@@ -1,8 +1,12 @@
 [tool.poetry]
 name = "etb-pg"
-version = "0.1.01"
+version = "0.1.3"
 description = "Interface for PostgreSQL databases"
 authors = ["Tate Button <yg3bpwn0or679hau8fxi@duck.com>"]
+license = "MIT"
+readme = "README.md"
+repository = "https://github.com/HFxLhT8JqeU5BnUG/etb-pg"
+exclude = ["exclude.py"]
 
 [tool.poetry.dependencies]
 python = "^3.10"
