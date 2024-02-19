@@ -78,6 +78,14 @@ pool = ["psycopg-pool"]
 test = ["anyio (>=3.6.2,<4.0)", "mypy (>=1.4.1)", "pproxy (>=2.7)", "pytest (>=6.2.5)", "pytest-cov (>=3.0)", "pytest-randomly (>=3.5)"]
 
 [[package]]
+name = "psycopg-binary"
+version = "3.1.18"
+description = "PostgreSQL database adapter for Python -- C optimisation distribution"
+category = "main"
+optional = false
+python-versions = ">=3.7"
+
+[[package]]
 name = "py"
 version = "1.11.0"
 description = "library with cross-python path, ini-parsing, io, code, log facilities"
@@ -134,7 +142,7 @@ python-versions = "*"
 [metadata]
 lock-version = "1.1"
 python-versions = "^3.10"
-content-hash = "53295ee4fcb194cf72d872c8aea5331a461e093b927cfefecde574157cab81de"
+content-hash = "a3f99ef664754944f140ed625ffee22a7617baad70345d4bd638ff5a06bf157f"
 
 [metadata.files]
 atomicwrites = []
@@ -144,6 +152,7 @@ more-itertools = []
 packaging = []
 pluggy = []
 psycopg = []
+psycopg-binary = []
 py = []
 pytest = []
 typing-extensions = []
