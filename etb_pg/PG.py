@@ -1,5 +1,8 @@
-import psycopg
+"""Small psycopg wrapper."""
+
 from typing import Any, Callable
+import psycopg
+
 
 class PGDB:
     '''class for interacting with Postgres Databases\n
@@ -14,14 +17,16 @@ class PGDB:
     sql_dir (optional): Specify the absolute path of the directory where queries are stored\n
     README at https://github.com/HFxLhT8JqeU5BnUG/etb-pg'''
 
+    DEFAULT_SCHEMA: str = "public"
+
     def __init__(self, conn_dict: dict[str, str],
                  read_only: bool = True, sql_dir: str = ""):
 
-        self.__connection__ = psycopg.connect(**conn_dict)
+        self.__connection__: psycopg.Connection = psycopg.connect(**conn_dict)
         self.__connection__.read_only = read_only
 
         if sql_dir and not sql_dir.endswith('/'):
-            sql_dir += '/' 
+            sql_dir += '/'
 
         self.__SQL_DIR__ = sql_dir
 
@@ -51,46 +56,40 @@ class PGDB:
         return self._execute_query(query)
 
 
-    def _execute_query(self, query: str) -> list[dict[str, Any]] | None:
+    def _execute_query(self, query: str) -> list[dict[str, Any]]:
         '''Internal use, called by class methods that accept various input formats'''
 
-        try:
-            with self.__connection__.cursor() as curs:
+        with self.__connection__.cursor() as curs:
 
-                curs.execute(query)
-                self.__connection__.commit()
+            curs.execute(query)
+            self.__connection__.commit()
 
-                result = curs.fetchall()
-                cols = curs.description
+            result = curs.fetchall()
+            cols = curs.description
 
-            rows = [{
-                cols[i].name : row[i] for i in range(len(row))
-            } for row in result]
+        rows = [
+            { cols[i].name : row[i] for i in range(len(row)) }
+              for row in result
+              ]
 
-            return rows
-
-        except psycopg.ProgrammingError:
-            return
-
-        except Exception as e:
-            print(e)
-            return
+        return rows
 
 
     def str_to_query(self, fun: Callable[..., str]):
         '''Decorator for function that returns a string\n
         Will treat the string returned by decorated function as a query and return the result'''
-        
+
         def wrapper(*args, **kwargs):
             query = fun(*args, **kwargs)
-            assert isinstance(query, str), f'Decorated function must return a string, not {type(query)}'
+            assert isinstance(query, str), \
+                f'Decorated function must return a string, not {type(query)}'
 
             return self.execute_str_query(query)
 
         return wrapper
 
 
-    def get_columns(self, table_name: str, schema: str = "public") -> dict[str, Any]:
+    def get_columns(self, table_name: str, schema: str = DEFAULT_SCHEMA) -> dict[str, Any]:
         '''Pass the name of the table, and (optional) the schema\n
         Returns names and types of rows as dictionary'''
         location = schema + "." + table_name
@@ -102,10 +101,11 @@ class PGDB:
         return {key: type(value) for key, value in row.items()}
 
 
-    def get_rows(self, table_name: str, schema: str = "public", cols: list[str] = None):
+    def get_rows(self, table_name: str, schema: str = DEFAULT_SCHEMA, cols: list[str] = None):
         '''Select specified columns from a table\n
         schema (optional, defaults to public)\n
         cols (optional, defaults to "*")'''
+
         if not cols:
             select_cols = '*'
         else:
