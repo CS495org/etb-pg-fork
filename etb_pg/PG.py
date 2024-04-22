@@ -7,11 +7,11 @@ import psycopg
 class PGDB:
     '''class for interacting with Postgres Databases\n
     conn_dict: dict = {
-    \t "user" : "",
-    \t "password" : "",
-    \t "host" : "",
-    \t "port" : "",
-    \t "dbname" : ""
+        "user" : "",
+        "password" : "",
+        "host" : "",
+        "port" : "",
+        "dbname" : ""
     }
     read_only (optional, default=True): Set the connection to be read only\n
     sql_dir (optional): Specify the absolute path of the directory where queries are stored\n
@@ -56,23 +56,26 @@ class PGDB:
         return self._execute_query(query)
 
 
-    def _execute_query(self, query: str) -> list[dict[str, Any]]:
+    def _execute_query(self, query: str) -> list[dict[str, Any]] | None:
         '''Internal use, called by class methods that accept various input formats'''
 
         with self.__connection__.cursor() as curs:
 
             curs.execute(query)
-            self.__connection__.commit()
+            if not curs.description:
+                self.__connection__.commit()
+                return
 
-            result = curs.fetchall()
-            cols = curs.description
+            else:
+                result = curs.fetchall()
+                cols = curs.description
 
-        rows = [
-            { cols[i].name : row[i] for i in range(len(row)) }
-              for row in result
-              ]
+                rows = [
+                    { cols[i].name : row[i] for i in range(len(row)) }
+                    for row in result
+                    ]
 
-        return rows
+                return rows
 
 
     def str_to_query(self, fun: Callable[..., str]):

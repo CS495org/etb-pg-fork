@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "etb-pg"
-version = "0.1.5"
+version = "0.1.6"
 description = "Interface for PostgreSQL databases"
 authors = ["Tate Button <yg3bpwn0or679hau8fxi@duck.com>"]
 license = "MIT"
